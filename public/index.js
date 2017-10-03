@@ -2,12 +2,12 @@ $(document).ready(function () {
 
     var articleContainer = $('.article-container');
     $(document).on('click', '.btn.save', handleArticleSave);
-    $(document).on('click', '.scrape-new', handleArticleScrape);
+   // $(document).on('click', '.scrape-new', handleArticleScrape);
 
-    initPage();
+    
 
     function initPage() {
-        articleContainer.empyty();
+        articleContainer.empty();
         $.get('/api/articles?saved=false')
             .then(function (data) {
                 if (data && data.length) {
@@ -64,4 +64,16 @@ $(document).ready(function () {
         var articleToSave = $(this).parents(".panel").data();
         articleToSave.saved = true;
     }
+
+ /*function handleArticleScrape() {
+        $.getJSON("scrape", function(data) {
+        // For each one
+        for (var i = 0; i < data.length; i++) {
+            // Display the apropos information on the page
+            $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].summary + "<br />"+ data[i].link + "<button data-id='" + data[i]._id + "' class=\"saveArticle\">Save This Article</button></p>");
+        }
+    });
+ }*/
+
+ initPage();
 });

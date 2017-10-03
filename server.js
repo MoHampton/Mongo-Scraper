@@ -34,7 +34,7 @@ app.use(bodyParser.urlencoded({
 app.use(router);
 
 // if deployed use the deployed database. Otherwise use the local mongoHeadlines db
-var db = process.env.MONGODB_URI || "mongodb://localhost/Mongo-Scraper";
+var db = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
 
 // Connect Mongoose to db
 mongoose.connect(db, function (error) {
