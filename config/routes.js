@@ -1,24 +1,100 @@
 // Server Routes
 // ============
 
-// Bring in the scrape function from our scripts directory
-var scrape = require('../public/scrape');
+var Article = require("../models/Article.js");
+var Note = require("../models/Note.js");
+var request = require("request");
+var cheerio = require("cheerio");
 
-// Bring headlines and notes from the controller
-var articlesController = require('../controllers/articles');
-var notesController = require('../controllers/notes');
+
 
 module.exports = function(router) {
-    // This route renders the homepage
-    router.get("/", function (req, res) {
-        res.render("home");
-    });
+
+// GET request to scrape the NYT website
+router.get("/scrape", function(req, res) {
+
+ // First, we grab the body of the html with request
+ request("http://www.nytimes.com/", function(error, response, html) {
+
+   // Then, we load that into cheerio and save it to $ for a shorthand selector
+   var $ = cheerio.load(html);
+
+   // Now, we grab every theme summary within an article tag, and do the following:
+   $(".theme-summary").each(function(i, element) {
+
+     // Save an empty result object
+     var result = {};
+
+     // Add the text and href of every link, and save them as properties of the result object
+     result.title = $(this).children(".story-heading").text().trim;
+     result.sum = $(this).children(".summary").text().trim;
+
+     // Using our Article model, create a new entry
+     // This effectively passes the result object to the entry (and the title and link)
+     var entry = new Article(result);
+
+     // Now, save that entry to the db
+     entry.save(function(err, doc) {
+       // Log any errors
+       if (err) {
+         console.log(err);
+       }
+       // Or log the doc
+       else {
+         console.log(doc);
+       }
+     });
+
+   });
+ });
+ // Tell the browser that we finished scraping the text
+ res.send("Scrape Complete");
+});
 
     router.get("/saved", function (req, res) {
-        res.render("saved");
+        res.render("saved", {content: data});
     });
 
-    router.get('/api/fetch', function (req, res) {
+ router.get("/articles/:id", function(req, res) {
+   Article.findOne({"_id": req.params.id})
+   .populate("note")
+   .exec(function(err, data) {
+     if (err) throw err;
+     res.json(data);
+   });
+});
+
+ router.post("/articles/:id", function(req, res) {
+   var newNote = new Note(req.body);
+   newNote.save(function(error, doc) {
+     if (error) throw error;
+     Article.findOneAndUpdate({ "_id": req.params.id}, {"note": doc._id})
+     .exec(function(err, data) {
+       if (err) throw err;
+       res.send(data);
+     });
+   });
+});
+
+ router.post("/saveArticle/:id", function(req,res) {
+   Article.findByIdAndUpdate(req.params.id, {$set: { saved: true }})
+ .exec( function(err, data) {
+   if (err) throw err;
+   res.end();
+ });
+});
+
+ router.get("/", function(req,res) {
+   Article.find({ saved: false })
+     .sort({ date: -1 })
+     .exec( function(error, data) {
+     if (error) throw error;
+     res.render("home", {content: data});
+     });
+ });
+};
+
+/*    router.get('/api/fetch', function (req, res) {
         articlesController.fetch(function (err, docs) {
             if (!docs || docs.insertCount === 0) {
                 res.json({message: 'No new articles today. Check back tomorrow!'});
@@ -73,3 +149,4 @@ module.exports = function(router) {
         });
     });
 }
+*/

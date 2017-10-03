@@ -15,18 +15,21 @@
     <div class="background-image"></div>
     <div class="caption">
         <h1>Mongo Scraper</h1>
-        <p>Washington Post Edition</p>
+        <p>New York Times Edition</p>
     </div>
 </div>
+
+{{#each content}}
 <div class="container-fluid article-container">
+<div id="articles">{{this.title}}</div>
+<div id="notes"></div>
 </div>
+{{/each}}
 
 <footer class="footer">
     <div class="container">
-        <p>Washington Post Mongo Scrapper</p>
+        <p>New York Times Mongo Scraper</p>
     </div>
 </footer>
 
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="index.js"></script>
+
