@@ -8,13 +8,21 @@
     </div>
 </div>
 
-{{#each content}}
+<!--{{#each content}}
 <div class="container-fluid article-container">
-<span id="articles">{{this.title}}</span>
-<div id="weblink">{{this.link}} Click Here</div>
-<div id="notes"></div>
+<div id="articles">
+    {{this.title}}
+    <a href="{{this.link}}">Read More Here</a>
+    </div>
+<div id="notes" data-id="{{this._id}}">Save the Story</div>
 </div>
 {{/each}}
+-->
+
+<div class="container-fluid article-container">
+<div id="articles"></div>
+<div id="notes"></div>
+</div>
 
 
 <footer class="footer">
