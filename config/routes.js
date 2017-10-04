@@ -14,21 +14,17 @@ module.exports = function(router) {
 router.get("/scrape", function(req, res) {
 
  // First, we grab the body of the html with request
- request("http://www.nytimes.com/", function(error, response, html) {
+    request("http://www.nytimes.com", function (err, res, body) {
+        var $ = cheerio.load(body);
+    $(".story-heading").each(function(i, element) {
+        if (i < 10) {
 
-   // Then, we load that into cheerio and save it to $ for a shorthand selector
-   var $ = cheerio.load(html);
-
-   // Now, we grab every theme summary within an article tag, and do the following:
-   $(".theme-summary").each(function(i, element) {
-
-     // Save an empty result object
-     var result = {};
+        var result = {};
 
      // Add the text and href of every link, and save them as properties of the result object
-     result.title = $(this).children(".story-heading").text().trim;
-     result.sum = $(this).children(".summary").text().trim;
-
+     result.title = $(this).children("a").text();
+     result.link = $(this).children("a").attr("href");
+        }
      // Using our Article model, create a new entry
      // This effectively passes the result object to the entry (and the title and link)
      var entry = new Article(result);
@@ -44,23 +40,43 @@ router.get("/scrape", function(req, res) {
          console.log(doc);
        }
      });
-
+    });
    });
- });
  // Tell the browser that we finished scraping the text
- res.send("Scrape Complete");
+ res.redirect("/");
 });
 
-    router.get("/saved", function (req, res) {
-        res.render("saved", {content: data});
+// This will get the articles we scraped from the mongoDB
+router.get("/articles", function(req, res) {
+  // Grab every doc in the Articles array
+  Article.find({}, function(error, doc) {
+    // Log any errors
+    if (error) {
+      console.log(error);
+    }
+    // Or send the doc to the browser as a json object
+    else {
+      res.json(doc);
+    }
+  });
+});
+
+  /*  router.get("/saved", function (req, res) {
+      Article.find({ saved: true })
+      .sort({ date: -1 })
+      .exec( function(error, data) {
+      if (error) throw error;
+        res.render("saved", {content: doc});
     });
+});
+*/
 
  router.get("/articles/:id", function(req, res) {
    Article.findOne({"_id": req.params.id})
    .populate("note")
-   .exec(function(err, data) {
-     if (err) throw err;
-     res.json(data);
+   .exec(function(err, doc) {
+    if (error) throw err;
+     res.json(doc);
    });
 });
 
@@ -69,16 +85,18 @@ router.get("/scrape", function(req, res) {
    newNote.save(function(error, doc) {
      if (error) throw error;
      Article.findOneAndUpdate({ "_id": req.params.id}, {"note": doc._id})
-     .exec(function(err, data) {
-       if (err) throw err;
-       res.send(data);
+     .exec(function(err, doc) {
+        if (err) {
+          console.log(err);
+        }
+       res.send(doc);
      });
    });
 });
 
  router.post("/saveArticle/:id", function(req,res) {
    Article.findByIdAndUpdate(req.params.id, {$set: { saved: true }})
- .exec( function(err, data) {
+ .exec( function(err, doc) {
    if (err) throw err;
    res.end();
  });
@@ -87,9 +105,9 @@ router.get("/scrape", function(req, res) {
  router.get("/", function(req,res) {
    Article.find({ saved: false })
      .sort({ date: -1 })
-     .exec( function(error, data) {
+     .exec( function(error, doc) {
      if (error) throw error;
-     res.render("home", {content: data});
+     res.render("home", {content: doc});
      });
  });
 };
