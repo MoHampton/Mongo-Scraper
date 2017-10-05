@@ -14,6 +14,7 @@ mongoose.Promise = Promise;
 // Instantiate our Express App
 var app = express();
 
+
 // Use morgan and body parser with our app
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({
@@ -33,7 +34,7 @@ app.use(express.static("public"));
 app.engine("handlebars", expressHandlebars({
     defaultLayout: 'main'
 }));
-app.set('view engine', 'handlebars');
+app.set('view engine', '.handlebars');
 
 // Use bodyParser in out app
 app.use(bodyParser.urlencoded({
@@ -42,6 +43,9 @@ app.use(bodyParser.urlencoded({
 
 // Have every request go through our router middleware
 app.use(router);
+
+
+
 
 // if deployed use the deployed database. Otherwise use the local mongoHeadlines db
 var db = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";

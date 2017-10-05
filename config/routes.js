@@ -75,7 +75,9 @@ router.get("/articles", function(req, res) {
    Article.findOne({"_id": req.params.id})
    .populate("note")
    .exec(function(err, doc) {
-    if (error) throw err;
+    if (error) {
+      console.log(error);
+    }
      res.json(doc);
    });
 });
@@ -83,23 +85,21 @@ router.get("/articles", function(req, res) {
  router.post("/articles/:id", function(req, res) {
    var newNote = new Note(req.body);
    newNote.save(function(error, doc) {
-     if (error) throw error;
+         if (error) {
+      console.log(error);
+    }
+    else{
      Article.findOneAndUpdate({ "_id": req.params.id}, {"note": doc._id})
      .exec(function(err, doc) {
         if (err) {
           console.log(err);
         }
+        else{
        res.send(doc);
+        }
      });
+    }
    });
-});
-
- router.post("/saveArticle/:id", function(req,res) {
-   Article.findByIdAndUpdate(req.params.id, {$set: { saved: true }})
- .exec( function(err, doc) {
-   if (err) throw err;
-   res.end();
- });
 });
 
  router.get("/", function(req,res) {
@@ -111,6 +111,15 @@ router.get("/articles", function(req, res) {
      });
  });
 };
+
+ /*router.post("/saveArticle/:id", function(req,res) {
+   Article.findByIdAndUpdate(req.params.id, {$set: { saved: true }})
+ .exec( function(err, doc) {
+   if (err) throw err;
+   res.end();
+ });
+});
+*/
 
 /*    router.get('/api/fetch', function (req, res) {
         articlesController.fetch(function (err, docs) {

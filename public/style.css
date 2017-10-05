@@ -1,6 +1,4 @@
-  body {
-      background-color: #575a5a
-  }
+
 
   .navbar {
   margin-bottom: 0;
@@ -87,4 +85,14 @@
 
 .jumbotron p {
   font-size: 30px;
+}
+
+.footer {
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  color: white;
+  background-color: #272b30;
+  text-align: center;
+  padding-top: 25px;
 }
