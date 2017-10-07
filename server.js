@@ -48,7 +48,10 @@ app.use(router);
 
 
 // if deployed use the deployed database. Otherwise use the local mongoHeadlines db
-var db = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
+//var db = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
+
+mongoose.connect("mongodb://heroku_f2q80qj3:6bk0fdi4222j8842thogj5rmus@ds111895.mlab.com:11895/heroku_f2q80qj3");
+var db = mongoose.connection;
 
 // Connect Mongoose to db
 mongoose.connect(db, function (error) {
